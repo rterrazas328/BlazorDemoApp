@@ -1,0 +1,106 @@
+﻿@page "/login"
+@inject ILogger<Login> logger
+@inject IUserService _userService
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider authStateProvider
+@rendermode InteractiveServer
+
+
+@using DemoApp.Models
+@using DemoApp.Models.Authentication
+@using DemoApp.Services
+@using DemoApp.Services.Authentication
+@using Microsoft.AspNetCore.Components.Authorization
+@using BCrypt.Net;
+
+<EditForm method="post" Model="formLogin" OnValidSubmit="LoginAttempt" FormName="login">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <h3>Please login with your user credentials</h3>
+
+    <label for="username">username</label>
+    <InputText id="username" type="text" @bind-Value="formLogin.username" />
+    <label for="pasword">password</label>
+    <InputText id="password" type="password" @bind-Value="formLogin.password" />
+    <button type="submit" class="btn btn-primary">Login</button>
+
+    @if (errorExists)
+    {
+        <h5 class="text-danger">@errorMessage</h5>
+    }
+    </EditForm>
+
+
+
+@code {
+
+
+    /*private readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
+    {
+        builder.AddConsole().SetMinimumLevel(LogLevel.Warning);
+    });//*/
+
+    //private readonly ILogger<UserLogin> _logger = new Logger<UserLogin>(_loggerFactory);
+    //private readonly ILoggerAdapter<UserLogin> _loggerAdapter = new LoggerAdapter<UserLogin>(_logger);
+
+    [SupplyParameterFromForm]
+    public UserLogin formLogin { get; set; } = new();
+
+    //MainLoginAuthenticationStateProvider authStateProvider = new();
+    //var userAccount = _userService.
+
+    bool errorExists = false;
+    String? errorMessage;
+
+    private async Task HandleSubmit()
+    {
+    await LoginAttempt();
+    }
+
+    private async Task LoginAttempt()
+    {
+    formLogin.createdAt = DateTime.UtcNow;
+
+    try
+    {
+        errorExists = false;
+        if (String.IsNullOrEmpty(formLogin.username) || String.IsNullOrEmpty(formLogin.password))
+        {
+            errorMessage = "Username or Password is empty";
+            errorExists = true;
+            return;
+        }
+
+        UserAccount? loginRequest = await _userService.ValidateUser(formLogin);
+
+        if (loginRequest == null)
+        {
+            errorMessage = "Username or Password is invalid";
+            errorExists = true;
+        }
+        else
+        {
+            //successfully validated
+            formLogin.role = loginRequest.role;
+            var authProvider = (MainLoginAuthenticationStateProvider) authStateProvider;
+            await authProvider.UpdateAuthenticationState(new UserSession
+                {
+                    UserName = formLogin.username,
+                    Role = formLogin.role
+                }
+            );
+                NavigationManager.NavigateTo("/", true);
+            }
+        
+        }
+        catch (TaskCanceledException ex)
+        {
+            errorExists = true;
+            errorMessage = "Login attempt has timed out...";
+            logger.LogWarning(ex, errorMessage);
+
+        }
+    }
+
+}

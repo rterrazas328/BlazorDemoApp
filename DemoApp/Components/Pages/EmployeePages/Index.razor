@@ -1,0 +1,47 @@
+﻿@page "/employees"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using DemoApp.Models
+@using DemoApp.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<DemoApp.Data.DemoAppContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="employees/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Employee">
+    <PropertyColumn Property="employee => employee.FirstName" />
+    <PropertyColumn Property="employee => employee.LastName" />
+    <PropertyColumn Property="employee => employee.NameStyle" />
+    <PropertyColumn Property="employee => employee.Title" />
+    <PropertyColumn Property="employee => employee.HireDate" />
+    <PropertyColumn Property="employee => employee.StartDate" />
+    <PropertyColumn Property="employee => employee.LoginID" />
+    <PropertyColumn Property="employee => employee.EmailAddress" />
+    <PropertyColumn Property="employee => employee.Phone" />
+    <PropertyColumn Property="employee => employee.DepartmentName" />
+    <PropertyColumn Property="employee => employee.Status" />
+    <PropertyColumn Property="employee => employee.EmployeePhoto" />
+
+    <TemplateColumn Context="employee">
+        <a href="@($"employees/edit?employeekey={employee.EmployeeKey}")">Edit</a> |
+        <a href="@($"employees/details?employeekey={employee.EmployeeKey}")">Details</a> |
+        <a href="@($"employees/delete?employeekey={employee.EmployeeKey}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private DemoAppContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

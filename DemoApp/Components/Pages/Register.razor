@@ -1,0 +1,74 @@
+﻿@page "/register"
+@inject ILogger<Login> logger
+@inject IUserService _userService
+@inject IDbContextFactory<DemoApp.Data.DemoAppLoginContext> DbFactory
+@inject NavigationManager NavigationManager
+
+@using DemoApp.Services
+@using Microsoft.EntityFrameworkCore
+@using DemoApp.Models
+@using DemoApp.Models.Authentication
+
+@inject IUserService _userService
+
+<EditForm method="post" Model="formRegistration" OnValidSubmit="createUserAccount" FormName="createUser" Enhance>
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <h3>Register for a new account</h3>
+    <label for="email" class="form-label">Email Address</label>
+    <InputText class="form-control" id="email" type="text" @bind-Value="formRegistration.email" />
+    <ValidationMessage For="() => formRegistration.email" class="text-danger" />
+    <label for="username" class="form-label">Username</label>
+    <InputText class="form-control" id="username" type="text" @bind-Value="formRegistration.username" />
+    <ValidationMessage For="() => formRegistration.username" class="text-danger" />
+    <label for="pasword" class="form-label">Password</label>
+    <InputText class="form-control" id="password" type="password" @bind-Value="formRegistration.passwordHash" />
+    <ValidationMessage For="() => formRegistration.passwordHash" class="text-danger" />
+    <label for="confirmPasword" class="form-label">Confirm Password</label>
+    <InputText class="form-control" id="passwordConfirmation" type="password" @bind-Value="formRegistration.confirmPassword" />
+    <ValidationMessage For="() => formRegistration.confirmPassword" class="text-danger" />
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+    @if (errorExists)
+    {
+        <h5 class="text-danger">@errorMessage</h5>
+    }
+
+</EditForm>
+
+
+@code {
+    [SupplyParameterFromForm]
+    Registration formRegistration { get; set; } = new();
+
+    UserAccount login { get; set; } = new();
+
+    const String FORM_ROLE_TYPE = "user";
+
+    bool errorExists = false;
+    String? errorMessage;
+
+    private async Task createUserAccount()
+    {
+        errorExists = false;
+        if(await _userService.checkIfUserExists(formRegistration.username))
+        {
+            //username taken!
+            errorExists = true;
+            errorMessage = "Username taken! Please use a different username!";
+
+            return;
+        }
+
+        login.email = formRegistration.email;
+        login.username = formRegistration.username;
+        login.passwordHash = formRegistration.passwordHash;
+        //set datetime
+        login.createdAt = DateTime.UtcNow;
+        //set role (default to regular user, since this user is created using this registration form)
+        login.role = FORM_ROLE_TYPE;
+
+        await _userService.saveUser(login);
+        NavigationManager.NavigateTo("/login");
+    }
+}
