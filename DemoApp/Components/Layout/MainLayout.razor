@@ -1,8 +1,12 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.AspNetCore.Components.Authorization
 @using DemoApp.Services.Authentication
 
+@inject IHttpContextAccessor HttpContextAccessor
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider authStateProvider
+@inject HttpClient Http
 @inherits LayoutComponentBase
 
 <div class="page">
@@ -14,7 +18,11 @@
         <div class="top-row px-4">
             <AuthorizeView>
                 <Authorized>
-                    <a @onclick="Logout" target="_self">Logout</a>
+                    <form method="post" action="/api/auth/logout">
+                        <input type="hidden" name="returnUrl" value="/login" />
+                        <button type="submit" class="btn btn-secondary">Logout</button>
+                    </form>
+
                 </Authorized>
                 <NotAuthorized>
                     <a href="login" target="_self">Login</a>
@@ -40,9 +48,9 @@
 {
     private async Task Logout()
     {
-        var authState = (MainLoginAuthenticationStateProvider) authStateProvider;
-        await authState.UpdateAuthenticationState(null);
-        NavigationManager.NavigateTo("/", true);
+        await Http.PostAsync("/api/auth/logout", null);
+        NavigationManager.NavigateTo("/login", true);
+
     }
 
 }

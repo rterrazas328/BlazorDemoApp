@@ -331,3 +331,4 @@ C:\Users\Ricardo\source\repos\DemoApp\DemoApp\obj\Debug\net10.0\compressed\unlu0
 C:\Users\Ricardo\source\repos\DemoApp\DemoApp\obj\Debug\net10.0\compressed\1x45lb54o8-{0}-boiwgh0w5b-boiwgh0w5b.gz
 C:\Users\Ricardo\source\repos\DemoApp\DemoApp\obj\Debug\net10.0\compressed\js7migc7gx-{0}-hsi0d8hn9i-hsi0d8hn9i.gz
 C:\Users\Ricardo\source\repos\DemoApp\DemoApp\bin\Debug\net10.0\BCrypt.Net-Next.dll
+C:\Users\Ricardo\source\repos\DemoApp\DemoApp\obj\Debug\net10.0\DemoApp.sourcelink.json

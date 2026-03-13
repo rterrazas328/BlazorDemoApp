@@ -1,4 +1,8 @@
 ﻿@page "/employees/delete"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @using Microsoft.EntityFrameworkCore
 @using DemoApp.Models
 @inject IDbContextFactory<DemoApp.Data.DemoAppContext> DbFactory
