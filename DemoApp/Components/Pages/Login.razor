@@ -17,11 +17,11 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using BCrypt.Net;
 @using System.Security.Claims
+@using System.Text.Json
 @attribute [AllowAnonymous]
 
 
-
-<!-- <EditForm method="post" action="/api/auth/login" Model="formLogin" FormName="login">
+<!--<EditForm method="post" action="/api/auth/login" Model="formLogin" FormName="login" Enhance="false">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <input type="hidden" name="returnUrl" value="/" />
@@ -35,7 +35,6 @@
     <button type="submit" class="btn btn-primary">Login</button>
 
 </EditForm>-->
-
     <form method="post" action="/api/auth/login">
         <input type="hidden" name="returnUrl" value="/" />
 
@@ -48,6 +47,15 @@
         <button type="submit" class="btn btn-primary">Login</button>
     </form>
 
+@if (errors.Any())
+{
+    <ul class="text-danger">
+        @foreach (var err in errors)
+        {
+            <li>@err</li>
+        }
+    </ul>
+}
 
     @if (errorExists)
     {
@@ -58,6 +66,23 @@
 
 
 @code {
+
+
+    List<string> errors = new();
+
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        if (query.TryGetValue("errors", out var value))
+        {
+            var decoded = Uri.UnescapeDataString(value);
+            var dict = JsonSerializer.Deserialize<Dictionary<string, string[]>>(decoded);
+
+            errors = dict.SelectMany(x => x.Value).ToList();
+        }
+    }
 
 
     /*private readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>

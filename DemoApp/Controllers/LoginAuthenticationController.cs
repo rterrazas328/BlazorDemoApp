@@ -17,7 +17,6 @@ namespace DemoApp.Controllers
     */
     [IgnoreAntiforgeryToken]
     [Route("api/auth")]
-    [ApiController]
     public class LoginAuthenticationController : ControllerBase
     {
 
@@ -34,6 +33,22 @@ namespace DemoApp.Controllers
         //public async Task<IActionResult> Login(UserLogin login)
         public async Task<ActionResult> Login([FromForm] string username, [FromForm] string password, [FromForm] string? returnUrl)
         {
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+
+                var json = System.Text.Json.JsonSerializer.Serialize(errors);
+                var encoded = Uri.EscapeDataString(json);
+
+                return Redirect($"/login?errors={encoded}");
+            }
+
             var loginRequest = new UserLogin { username = username, password = password };
 
             UserAccount? loginUser = await _users.ValidateUser(loginRequest);

@@ -5,6 +5,7 @@ using DemoApp.Services.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -57,6 +58,13 @@ builder.Services.AddAuthorization();
 
 
 builder.Services.AddControllers();
+
+
+//Disable Automatic ModelState Handling
+/*builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});//*/
 
 builder.Services.AddScoped<IUserService, UserService>();
 
