@@ -53,9 +53,11 @@ namespace DemoApp.Services
             //String hash = HashPassword(loginRequest.password);
             //loginRequest.password = hash;
 
+            //this will be null if username does not exist
             UserAccount? loginUser = await getUserByName(loginRequest.username);
-
-            bool verifyResult = verifyPassword(loginRequest.password, loginUser.passwordHash);
+            bool verifyResult = false;
+            if (loginUser != null)
+                verifyResult = verifyPassword(loginRequest.password, loginUser.passwordHash);
 
             if (loginUser != null && verifyResult)
             {

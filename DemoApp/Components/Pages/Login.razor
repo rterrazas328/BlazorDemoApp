@@ -2,8 +2,8 @@
 @inject ILogger<Login> logger
 @inject IUserService _userService
 @inject HttpClient Http
+@inject IHttpContextAccessor HttpContextAccessor
 @inject NavigationManager NavigationManager
-@inject AuthenticationStateProvider authStateProvider
 @rendermode InteractiveServer
 
 
@@ -11,12 +11,21 @@
 @using DemoApp.Models.Authentication
 @using DemoApp.Services
 @using DemoApp.Services.Authentication
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using BCrypt.Net;
+@using System.Security.Claims
+@using System.Text.Json
+@attribute [AllowAnonymous]
 
-<EditForm method="post" Model="formLogin" OnValidSubmit="LoginAttempt" FormName="login">
+
+<!--<EditForm method="post" action="/api/auth/login" Model="formLogin" FormName="login" Enhance="false">
     <DataAnnotationsValidator />
     <ValidationSummary />
+    <input type="hidden" name="returnUrl" value="/" />
+
     <h3>Please login with your user credentials</h3>
 
     <label for="username">username</label>
@@ -25,15 +34,55 @@
     <InputText id="password" type="password" @bind-Value="formLogin.password" />
     <button type="submit" class="btn btn-primary">Login</button>
 
+</EditForm>-->
+    <form method="post" action="/api/auth/login">
+        <input type="hidden" name="returnUrl" value="/" />
+
+        <label for="username">username</label>
+        <input id="username" name="username" type="text" />
+
+        <label for="password">password</label>
+        <input id="password" name="password" type="password" />
+
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+
+@if (errors.Any())
+{
+    <ul class="text-danger">
+        @foreach (var err in errors)
+        {
+            <li>@err</li>
+        }
+    </ul>
+}
+
     @if (errorExists)
     {
         <h5 class="text-danger">@errorMessage</h5>
     }
-    </EditForm>
+    
 
 
 
 @code {
+
+
+    List<string> errors = new();
+
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        if (query.TryGetValue("errors", out var value))
+        {
+            var decoded = Uri.UnescapeDataString(value);
+            var dict = JsonSerializer.Deserialize<Dictionary<string, string[]>>(decoded);
+
+            errors = dict.SelectMany(x => x.Value).ToList();
+        }
+    }
 
 
     /*private readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder =>
@@ -49,6 +98,8 @@
 
     //MainLoginAuthenticationStateProvider authStateProvider = new();
     //var userAccount = _userService.
+
+    //private readonly CustomAuthService _auth;
 
     bool errorExists = false;
     String? errorMessage;
@@ -72,26 +123,21 @@
             return;
         }
 
-        UserAccount? loginRequest = await _userService.ValidateUser(formLogin);
+        //validation here
+        var response = await Http.PostAsJsonAsync("/api/auth/login", formLogin);
 
-        if (loginRequest == null)
+        if (response.IsSuccessStatusCode)
         {
-            errorMessage = "Username or Password is invalid";
-            errorExists = true;
+
+            NavigationManager.NavigateTo("/", true); // full reload to send cookie
         }
         else
         {
-            //successfully validated
-            formLogin.role = loginRequest.role;
-            var authProvider = (MainLoginAuthenticationStateProvider) authStateProvider;
-            await authProvider.UpdateAuthenticationState(new UserSession
-                {
-                    UserName = formLogin.username,
-                    Role = formLogin.role
-                }
-            );
-                NavigationManager.NavigateTo("/", true);
-            }
+            errorExists = true;
+            var error = await response.Content.ReadAsStringAsync();
+            errorMessage = error;
+            return;
+        }
         
         }
         catch (TaskCanceledException ex)

@@ -1,12 +1,14 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
 <AuthorizeView>
     <Authorized>
-
+        <h1>Hello @context.User.Identity?.Name, Welcome to the demo site! </h1>
+        <!-- @context.User.FindFirst(ClaimTypes.Role)?.Value-->
     </Authorized>
     <NotAuthorized>
         <h1>Hello Guest, Welcome to the demo site!</h1>
