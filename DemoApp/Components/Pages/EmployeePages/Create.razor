@@ -28,10 +28,20 @@
                 <ValidationMessage For="() => Employee.LastName" class="text-danger" /> 
             </div>        
             <div class="mb-3">
-                <label for="namestyle" class="form-label">NameStyle:</label> 
+                <label for="namestyle" class="form-label">Name Style:</label> 
                 <InputCheckbox id="namestyle" @bind-Value="Employee.NameStyle" class="form-check-input" /> 
                 <ValidationMessage For="() => Employee.NameStyle" class="text-danger" /> 
-            </div>        
+            </div>
+            <div class="mb-3">
+                <label for="currentflag" class="form-label">Current:</label>
+                <InputCheckbox id="currentflag" @bind-Value="Employee.CurrentFlag" class="form-check-input" />
+                <ValidationMessage For="() => Employee.CurrentFlag" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="salespersonflag" class="form-label">Sales Person:</label>
+                <InputCheckbox id="salespersonflag" @bind-Value="Employee.SalesPersonFlag" class="form-check-input" />
+                <ValidationMessage For="() => Employee.SalesPersonFlag" class="text-danger" />
+            </div>
             <div class="mb-3">
                 <label for="title" class="form-label">Title:</label> 
                 <InputText id="title" @bind-Value="Employee.Title" class="form-control" /> 

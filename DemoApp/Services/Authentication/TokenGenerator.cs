@@ -10,7 +10,7 @@ namespace DemoApp.Services.Authentication
         public String GenerateToken(String name)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = "LongAssSecureKeyStrin"u8.ToArray();
+            var key = "LongAssSecureKeyString"u8.ToArray();
 
             var claims = new List<Claim>
             {

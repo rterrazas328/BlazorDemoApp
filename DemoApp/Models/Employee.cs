@@ -11,6 +11,8 @@ namespace DemoApp.Models
         public String? FirstName { get; set; }
         public String? LastName { get; set; }
         public Boolean NameStyle { get; set; }
+        public Boolean CurrentFlag { get; set; }
+        public Boolean SalesPersonFlag { get; set; }
         public String? Title { get; set; }
         public DateOnly HireDate { get; set; }
         public DateOnly StartDate { get; set; }

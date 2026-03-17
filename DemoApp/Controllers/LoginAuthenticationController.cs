@@ -34,7 +34,7 @@ namespace DemoApp.Controllers
         public async Task<ActionResult> Login([FromForm] string username, [FromForm] string password, [FromForm] string? returnUrl)
         {
 
-            if (!ModelState.IsValid)
+            /*if (!ModelState.IsValid)
             {
                 var errors = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
@@ -47,7 +47,7 @@ namespace DemoApp.Controllers
                 var encoded = Uri.EscapeDataString(json);
 
                 return Redirect($"/login?errors={encoded}");
-            }
+            }*/
 
             var loginRequest = new UserLogin { username = username, password = password };
 
