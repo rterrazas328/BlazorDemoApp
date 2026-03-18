@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Security.Claims;
+using DemoApp.Services.Authentication;
+
 
 namespace DemoApp.Controllers
 {
@@ -34,21 +36,6 @@ namespace DemoApp.Controllers
         public async Task<ActionResult> Login([FromForm] string username, [FromForm] string password, [FromForm] string? returnUrl)
         {
 
-            /*if (!ModelState.IsValid)
-            {
-                var errors = ModelState
-                    .Where(x => x.Value.Errors.Count > 0)
-                    .ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                    );
-
-                var json = System.Text.Json.JsonSerializer.Serialize(errors);
-                var encoded = Uri.EscapeDataString(json);
-
-                return Redirect($"/login?errors={encoded}");
-            }*/
-
             var loginRequest = new UserLogin { username = username, password = password };
 
             UserAccount? loginUser = await _users.ValidateUser(loginRequest);
@@ -71,7 +58,16 @@ namespace DemoApp.Controllers
 
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var claimsPrincipal = new ClaimsPrincipal(identity);
-
+                
+                
+                //JWT Token
+                TokenGenerator tokenGenerator = new TokenGenerator();
+                String access_token = tokenGenerator.GenerateToken(
+                        loginRequest.username
+                );
+                
+                
+                //set Cookie
                 await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 claimsPrincipal,

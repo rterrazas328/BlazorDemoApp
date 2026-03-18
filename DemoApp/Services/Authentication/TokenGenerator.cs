@@ -2,6 +2,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
+
 
 namespace DemoApp.Services.Authentication
 {
@@ -10,7 +12,8 @@ namespace DemoApp.Services.Authentication
         public String GenerateToken(String name)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = "LongAssSecureKeyString"u8.ToArray();
+            var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWTTOKEN_KEY"));
+            //var key = "LongAssSecureKeyString"u8.ToArray();
 
             var claims = new List<Claim>
             {

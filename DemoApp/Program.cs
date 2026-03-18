@@ -8,7 +8,12 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using DotNetEnv;
 
+
+
+
+Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContextFactory<DemoAppContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DemoAppContext") ?? throw new InvalidOperationException("Connection string 'DemoAppContext' not found."))    
@@ -54,6 +59,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
+builder.Services.AddSingleton<TokenGenerator>();
+
 builder.Services.AddAuthorization();
 
 

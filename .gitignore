@@ -1,3 +1,4 @@
 .vs
 DemoApp/obj
 DemoApp/bin
+.env
