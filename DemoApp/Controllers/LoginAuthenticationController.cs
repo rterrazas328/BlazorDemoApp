@@ -1,11 +1,12 @@
 ﻿using DemoApp.Models;
 using DemoApp.Services;
+using DemoApp.Services.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Security.Claims;
-using DemoApp.Services.Authentication;
+using System.Text;
 
 
 namespace DemoApp.Controllers
@@ -40,9 +41,27 @@ namespace DemoApp.Controllers
 
             UserAccount? loginUser = await _users.ValidateUser(loginRequest);
 
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+
+                var json = System.Text.Json.JsonSerializer.Serialize(errors);
+                var encoded = Uri.EscapeDataString(json);
+
+                return Redirect($"/login?errors={encoded}");
+            }
+
+
             if (loginUser == null)
             {
-                return Unauthorized("Username or Password is invalid");
+                String JSONerror = """{"password":["The password entered was incorrect."]}""";
+                var encoded = Uri.EscapeDataString(JSONerror);
+                return Redirect($"/login?errors={encoded}");
             }
             else
             {
@@ -61,10 +80,10 @@ namespace DemoApp.Controllers
                 
                 
                 //JWT Token
-                TokenGenerator tokenGenerator = new TokenGenerator();
+                /*TokenGenerator tokenGenerator = new TokenGenerator();
                 String access_token = tokenGenerator.GenerateToken(
                         loginRequest.username
-                );
+                );//*/
                 
                 
                 //set Cookie

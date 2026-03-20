@@ -48,6 +48,21 @@ builder.Services.AddHttpContextAccessor();
 //builder.Services.AddScoped<MainLoginAuthenticationStateProvider>();
 //builder.Services.AddScoped<AuthenticationStateProvider> (sp => sp.GetRequiredService<MainLoginAuthenticationStateProvider>());
 
+/*builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x =>
+{
+   x.TokenValidationParameters = new TokenValidationParameters
+   {
+       ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+       ValidAudience = builder.Configuration["JwtSettings:Audience"],
+       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWTTOKEN_KEY"))),
+       ValidateIssuer = true,
+       ValidateAudience = true,
+       ValidateLifetime = true,
+       ValidateIssuerSigningKey = true
+   };
+}
+);*/
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie( options =>
 {
     options.Cookie.Name = ".DemoApp.Auth";
