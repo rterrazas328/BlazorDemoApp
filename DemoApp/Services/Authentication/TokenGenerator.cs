@@ -18,7 +18,7 @@ namespace DemoApp.Services.Authentication
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new(JwtRegisteredClaimNames.Sub, name)
+                new(ClaimTypes.Name, name)
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor()

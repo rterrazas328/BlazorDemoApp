@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 
@@ -48,22 +51,38 @@ builder.Services.AddHttpContextAccessor();
 //builder.Services.AddScoped<MainLoginAuthenticationStateProvider>();
 //builder.Services.AddScoped<AuthenticationStateProvider> (sp => sp.GetRequiredService<MainLoginAuthenticationStateProvider>());
 
-/*builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x =>
+builder.Services.AddAuthentication(x =>
 {
-   x.TokenValidationParameters = new TokenValidationParameters
-   {
-       ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-       ValidAudience = builder.Configuration["JwtSettings:Audience"],
-       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWTTOKEN_KEY"))),
-       ValidateIssuer = true,
-       ValidateAudience = true,
-       ValidateLifetime = true,
-       ValidateIssuerSigningKey = true
-   };
-}
-);*/
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddCookie(xco =>
+    {
+        xco.Cookie.Name = "access_token";
+}).AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        //ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+       // ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWTTOKEN_KEY"))),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true
+    };
+    x.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            context.Token = context.Request.Cookies["access_token"];
+            return Task.CompletedTask;
+        }
+    };
+});//*/
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie( options =>
+/*builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie( options =>
 {
     options.Cookie.Name = ".DemoApp.Auth";
     options.LoginPath = "/api/auth/login";
@@ -73,8 +92,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.None;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-});
-builder.Services.AddSingleton<TokenGenerator>();
+});//*/
+//builder.Services.AddSingleton<TokenGenerator>();
 
 builder.Services.AddAuthorization();
 
@@ -127,7 +146,7 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapControllers();
-app.MapBlazorHub();
+//app.MapBlazorHub();
 
 
 

@@ -18,11 +18,11 @@ namespace DemoApp.Controllers
             - cookie session storage
 
     */
-    [IgnoreAntiforgeryToken]
     [Route("api/auth")]
     public class LoginAuthenticationController : ControllerBase
     {
 
+        private const int DEFAULT_COOKIE_LIFETIME = 3;
         private readonly IUserService _users;
 
         public LoginAuthenticationController(IUserService users)
@@ -31,7 +31,6 @@ namespace DemoApp.Controllers
 
         }
 
-        [IgnoreAntiforgeryToken]
         [HttpPost("login")]
         //public async Task<IActionResult> Login(UserLogin login)
         public async Task<ActionResult> Login([FromForm] string username, [FromForm] string password, [FromForm] string? returnUrl)
@@ -80,21 +79,28 @@ namespace DemoApp.Controllers
                 
                 
                 //JWT Token
-                /*TokenGenerator tokenGenerator = new TokenGenerator();
-                String access_token = tokenGenerator.GenerateToken(
-                        loginRequest.username
-                );//*/
+                TokenGenerator tokenGenerator = new TokenGenerator();
+
+                HttpContext.Response.Cookies.Append("access_token", tokenGenerator.GenerateToken(loginRequest.username),
+                    new CookieOptions
+                    {
+                        Expires = DateTime.UtcNow.AddDays(DEFAULT_COOKIE_LIFETIME),
+                        HttpOnly = true,
+                        Secure = true,
+                        IsEssential = true,
+                        SameSite = SameSiteMode.None
+                    });
                 
                 
                 //set Cookie
-                await HttpContext.SignInAsync(
+                /*await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 claimsPrincipal,
                 new AuthenticationProperties
                 {
                     IsPersistent = true,
                     ExpiresUtc = DateTime.UtcNow.AddMinutes(30)
-                });
+                });//*/
 
                 return Redirect(returnUrl ?? "/");
             }
