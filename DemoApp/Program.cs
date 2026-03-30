@@ -114,14 +114,14 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 
 //Loggin setup
-builder.Logging.ClearProviders();
+/*builder.Logging.ClearProviders();
 builder.Logging.AddEventLog(eventLogSettings =>
 {
     eventLogSettings.SourceName = "DemoApp";
 });
 
 builder.Logging.AddConsole(); //For debugging only
-builder.Logging.AddDebug(); //For debugging only
+builder.Logging.AddDebug(); //For debugging only//*/
 
 var app = builder.Build();
 

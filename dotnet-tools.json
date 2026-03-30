@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "dotnet-dev-certs": {
+      "version": "2.2.0",
+      "commands": [
+        "dotnet-dev-certs"
+      ],
+      "rollForward": false
+    }
+  }
+}

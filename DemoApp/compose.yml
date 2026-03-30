@@ -1,0 +1,44 @@
+﻿
+services:
+  db:
+    build: ./db_build
+    user: "0:0"
+    environment:
+      MSSQL_PID: Express
+      SA_PASSWORD: ${SA_PASSWORD}
+      ACCEPT_EULA: "Y"
+      DB_USER_PW: ${blazor_app}
+    ports:
+      - "1433:1433"
+    volumes:
+      - db_data:/var/opt/mssql/data
+      - ./backups:/var/opt/mssql/backup
+    healthcheck:
+      test: >
+        /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -C -Q "SELECT state_desc FROM sys.databases WHERE name='AdventureWorksDW2025'" | grep -q "ONLINE"
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./certs:/https:ro
+    environment:
+      - ASPNETCORE_URLS=https://+:7076
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${cert_pwd}
+      - ConnectionStrings__DemoAppContext=Server=db;Database=AdventureWorksDW2025;User=blazor_app;Password=${blazor_app};TrustServerCertificate=True
+      - SA_PASSWORD=${SA_PASSWORD}
+      - JWTTOKEN_KEY=${JWTTOKEN_KEY}
+    ports:
+      - "7076:7076"
+    
+
+volumes:
+  db_data:
+  
