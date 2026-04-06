@@ -1,6 +1,7 @@
 .vs
 DemoApp/obj
 DemoApp/bin
-.env
+DemoApp/.env
 DemoApp/certs
 DemoApp/backups
+DemoApp/secrets
