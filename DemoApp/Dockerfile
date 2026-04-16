@@ -1,9 +1,11 @@
-﻿#Initial Build
+#Initial Build
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY *.csproj ./
 RUN dotnet restore
+
+
 
 
 #Another layer for everything else
@@ -35,7 +37,11 @@ RUN apt-get update && \
 COPY --from=build /app/publish .
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY certs/aspnetapp.pfx /https/aspnetapp.pfx
+
+
 RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +r /https/aspnetapp.pfx
 
 
 

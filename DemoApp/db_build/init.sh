@@ -2,19 +2,22 @@
 
 set -e
 
-if [ -e /run/secrets/sa_password ]; then
-    export SA_PASSWORD=$(cat /run/secrets/sa_password)
+if [[ -v RAILWAY_SERVICE_ID ]]; then
+    echo "Railway Detected!"
+else
+    if [ -e /run/secrets/sa_password ]; then
+        export SA_PASSWORD=$(cat /run/secrets/sa_password)
+    fi
+    if [ -e /run/secrets/db_password ]; then
+        export DB_USER_PW=$(cat /run/secrets/db_password)
+    fi
+    if [ -e /run/secrets/db_app_user ]; then
+        export DB_APP_USER=$(cat /run/secrets/db_app_user)
+    fi
+    if [ -e /run/secrets/db_app_password ]; then
+        export DB_APP_PASSWORD=$(cat /run/secrets/db_app_password)
+    fi
 fi
-if [ -e /run/secrets/db_password ]; then
-    export DB_USER_PW=$(cat /run/secrets/db_password)
-fi
-if [ -e /run/secrets/db_app_user ]; then
-    export DB_APP_USER=$(cat /run/secrets/db_app_user)
-fi
-if [ -e /run/secrets/db_app_password ]; then
-    export DB_APP_PASSWORD=$(cat /run/secrets/db_app_password)
-fi
-
 
 # Start SQL Server in background
 /opt/mssql/bin/sqlservr &

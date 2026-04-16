@@ -1,6 +1,6 @@
-﻿
-.dockerignore
+﻿.dockerignore
 Dockerfile
 secrets
 obj
 bin
+.env

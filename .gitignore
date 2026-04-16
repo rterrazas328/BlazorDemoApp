@@ -5,3 +5,4 @@ DemoApp/.env
 DemoApp/certs
 DemoApp/backups
 DemoApp/secrets
+DemoApp/db_build/backups
